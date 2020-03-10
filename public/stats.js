@@ -35,7 +35,9 @@ API.getWorkoutsInRange()
   }
 function populateChart(data) {
   let durations = duration(data);
+  let durationsSD = durationSD(data);
   let pounds = calculateTotalWeight(data);
+  let poundsSD = calculateTotalWeightSD(data);
   let workouts = workoutNames(data);
   const colors = generatePalette();
 
@@ -61,7 +63,7 @@ function populateChart(data) {
           label: "Workout Duration In Minutes",
           backgroundColor: "red",
           borderColor: "red",
-          data: durations,
+          data: durationsSD, //fix this, adding new day for every exercise instead of compounding it
           fill: false
         }
       ]
@@ -107,7 +109,7 @@ function populateChart(data) {
       datasets: [
         {
           label: "Pounds",
-          data: pounds,
+          data: poundsSD,
           backgroundColor: [
             "rgba(255, 99, 132, 0.2)",
             "rgba(54, 162, 235, 0.2)",
@@ -151,7 +153,7 @@ function populateChart(data) {
       labels: workouts,
       datasets: [
         {
-          label: "Excercises Performed",
+          label: "Excercises Duration",
           backgroundColor: colors,
           data: durations
         }
@@ -160,7 +162,7 @@ function populateChart(data) {
     options: {
       title: {
         display: true,
-        text: "Excercises Performed"
+        text: "Excercises Duration"
       }
     }
   });
@@ -198,6 +200,7 @@ function duration(data) {
   return durations;
 }
 
+
 function calculateTotalWeight(data) {
   let total = [];
 
@@ -209,6 +212,38 @@ function calculateTotalWeight(data) {
 
   return total;
 }
+
+//=======================================================================
+// Functions to combine exercises to same day (if on same day) instead of having a new day for each workout
+// Created separate functions due to pie/doughnut charts causing errors when manipulating given functions above
+function durationSD(data) {
+  let durations = [];
+  data.forEach(workout => {
+    let duration = 0; //added to make the exercises cumulative for each day instead of making a point for each exercise
+    workout.exercises.forEach(exercise => {
+      duration += exercise.duration;
+    });
+    durations.push(duration);
+  });
+  return durations;
+}
+
+function calculateTotalWeightSD(data) {
+  let total = [];
+
+  data.forEach(workout => {
+    let weights = 0; //added to make the exercises cumulative for each day instead of making a point for each exercise
+    workout.exercises.forEach(exercise => {
+      if(exercise.weight) {
+        weights += exercise.weight;
+      }
+    });
+    total.push(weights);
+  });
+  
+  return total;
+}
+//=======================================================================
 
 function workoutNames(data) {
   let workouts = [];
