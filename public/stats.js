@@ -49,21 +49,13 @@ function populateChart(data) {
   let lineChart = new Chart(line, {
     type: "line",
     data: {
-      labels: [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday"
-      ],
+      labels: printDays(), //make data points link up with correct day
       datasets: [
         {
           label: "Workout Duration In Minutes",
           backgroundColor: "red",
           borderColor: "red",
-          data: durationsSD, //fix this, adding new day for every exercise instead of compounding it
+          data: durationsSD,
           fill: false
         }
       ]
@@ -97,15 +89,7 @@ function populateChart(data) {
   let barChart = new Chart(bar, {
     type: "bar",
     data: {
-      labels: [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
+      labels: printDays(), //make data points link up with correct day
       datasets: [
         {
           label: "Pounds",
@@ -214,33 +198,81 @@ function calculateTotalWeight(data) {
 }
 
 //=======================================================================
-// Functions to combine exercises to same day (if on same day) instead of having a new day for each workout
+// Functions to combine exercises to same day (if on same day) instead of having a new day for each workout and dynamically generate the last week of workouts
 // Created separate functions due to pie/doughnut charts causing errors when manipulating given functions above
 function durationSD(data) {
-  let durations = [];
+  let durations = []; //if no workout is done set to 0
+  let xaxis = [];
   data.forEach(workout => {
-    let duration = 0; //added to make the exercises cumulative for each day instead of making a point for each exercise
+    let duration = 0; //added to make the exercises cumulative for each day instead of making a new data point for each exercise
     workout.exercises.forEach(exercise => {
       duration += exercise.duration;
     });
-    durations.push(duration);
+
+    let day = workout.day //getting the day and saving it for the x axis location
+    let d = new Date(day.split("T"));
+    let xlocal = d.getDay();
+
+    xaxis.push({x:xlocal, y:duration});
   });
+
+  let today = new Date().getDay();
+  let i = today;
+  for(let z=0; z<7; z++) {
+    if(i == -1) {
+      i = 6;
+    }
+    let includes = false;
+    xaxis.forEach(element => {
+      if(element.x === i) {
+        durations.unshift(element.y);
+        includes = true;
+      }
+    })
+    if(includes === false) {
+      durations.unshift(0);
+    }
+    i -= 1;
+  }
   return durations;
 }
 
 function calculateTotalWeightSD(data) {
   let total = [];
-
+  let xaxis = [];
   data.forEach(workout => {
-    let weights = 0; //added to make the exercises cumulative for each day instead of making a point for each exercise
+    let weights = 0; //added to make the exercises cumulative for each day instead of making a new data point for each exercise
     workout.exercises.forEach(exercise => {
       if(exercise.weight) {
         weights += exercise.weight;
       }
     });
-    total.push(weights);
+    let day = workout.day //getting the day and saving it for the x axis location
+    let d = new Date(day.split("T"));
+    let xlocal = d.getDay();
+
+    xaxis.push({x:xlocal, y:weights});
   });
   
+  let today = new Date().getDay();
+  let i = today;
+  for(let z=0; z<7; z++) {
+    if(i == -1) {
+      i = 6;
+    }
+    let includes = false;
+    xaxis.forEach(element => {
+      if(element.x === i) {
+        total.unshift(element.y);
+        includes = true;
+      }
+    })
+    if(includes === false) {
+      total.unshift(0);
+    }
+    i -= 1;
+  }
+
   return total;
 }
 //=======================================================================
@@ -255,4 +287,23 @@ function workoutNames(data) {
   });
   
   return workouts;
+}
+
+function printDays() {
+  let day = new Date();
+  let current = day.getDay(); //gives a number 0 - 6 | Sun - Sat
+  let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+  let labels = [];
+  let i = current;
+  for(let x=0; x<7; x++) {
+    if(i == -1) {
+      i = 6;
+      labels.unshift(days[i]);
+    }
+    else {
+      labels.unshift(days[i]);
+    }
+    i -= 1;
+  }
+  return labels;
 }

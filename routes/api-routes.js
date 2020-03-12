@@ -40,7 +40,17 @@ module.exports = function(app) {
   app.get("/api/workouts/range", (req, res) => {
     Workout.find({}) //add range in the parameters
       .then(dbWorkout => {
-          res.json(dbWorkout);
+        let latest = dbWorkout[dbWorkout.length-1]; //grab last workout in array (latest) use that day to sort 
+        let day = latest.day;
+        day.setDate(day.getDate()-7);
+
+        Workout.find({day: {$gte: day}}) //get only workouts in the last week
+          .then(dbWorkout => {
+            res.json(dbWorkout);
+          })
+          .catch(err => {
+            res.status(400).json(err);
+          })  
       })
       .catch(err => {
           res.status(400).json(err);
