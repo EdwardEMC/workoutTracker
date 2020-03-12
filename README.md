@@ -8,15 +8,15 @@ In order to find out the best workout routine.
 
 Landing on the homepage will display one option for a new user, new workout and two options for returning users, continue workout and new workout.
 
-![home](/images/homeSS.jpg?raw=true "home")
+![home](/public/images/homeSS.jpg?raw=true "home")
 
 Creating or continuing a workout will allow a user to add exercises to that workout. If a workout is created a new collection is added to the database with a timestamp of the current time/day.
 
-![workout](/images/workoutSS.jpg?raw=true "workout")
+![workout](/public/images/workoutSS.jpg?raw=true "workout")
 
 Clicking on the dashboard will give the user their stats for the last 7 days, dynamically updated to the current day. These stats include the workout durations, pounds lifted and the different exercises performed.
 
-![stats](/images/statsSS.jpg?raw=true "stats")
+![stats](/public/images/statsSS.jpg?raw=true "stats")
 
 # Built with
 Semantics /
